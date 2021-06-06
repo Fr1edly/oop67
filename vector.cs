@@ -20,6 +20,10 @@ namespace slave {
       ID =_ID;
        Console.WriteLine("vector "+ ID +": created");
     }
+    public vector(int r, double[] mas) : base(r, 1, mas){
+      ID=_ID;
+      Console.WriteLine("vecotr " + ID + ": created");
+    }
     public vector(matrix obj) : base(obj){
       if(col > 1)
         throw new Exception("Err: out of size");
