@@ -108,14 +108,14 @@ namespace slave {
     public override string ToString()
       {
         string text ="";
-        if(row == 0 || col == 0){
+        if(this.row == 0 || this.col == 0){
         text = " ";
               
         }
         else {
           for(int i = 0; i < this.row; i++){
             for(int j = 0; j < this.col; j++){
-              text +=string.Format("{0:F2}", mass[i * this.row + j]) +"\t";
+              text +=string.Format("{0:F2}", mass[i * this.col + j]) +"\t";
                }
             text += "\n";
             }
@@ -192,7 +192,7 @@ namespace slave {
         if(!obj.IsNull()){
           matrix tmp = new matrix(obj);
           for(int i=0; i < obj.row * obj.col; i++)
-            tmp.mass[i] += item;
+            tmp.mass[i] *= item;
           return tmp;
         }
         else
