@@ -7,26 +7,32 @@ using System.Threading.Tasks;
 namespace slave {
   class vector : matrix {
     public vector() : base(){
-      ID = _ID;
+      // ???
+      
       Console.WriteLine("vector "+ ID +": created");
     }
     public vector(int r) : base(r, 1){
-      ID = _ID;
+      
       Console.WriteLine("vector "+ ID +": created");
     }
     public vector(int r, Func<int, double> F): base(r, 1){
       for(int i=0; i< r;i++)
         mass[i]=F(i);
-      ID =_ID;
+      
        Console.WriteLine("vector "+ ID +": created");
     }
     public vector(int r, double[] mas) : base(r, 1, mas){
-      ID=_ID;
+      
       Console.WriteLine("vecotr " + ID + ": created");
     }
     public vector(matrix obj) : base(obj){
-      if(col > 1)
-        throw new Exception("Err: out of size");
+      // ???
+      if(col > 1){
+        if(row > 1)  
+          throw new Exception("Err: out of size");
+        else
+          this.transpose();
+      }
       Console.WriteLine("vector "+ this.ID +": copy created");
     } 
     ~vector(){
@@ -34,7 +40,7 @@ namespace slave {
     }
 
     public static vector operator +(vector fobj, vector sobj){
-      if(fobj.checkSum(sobj) && !fobj.IsNull() && !sobj.IsNull()){
+      if(checkSum(fobj, sobj) && !fobj.IsNull() && !sobj.IsNull()){
         vector tmp = new vector(fobj);
         for( int i=0; i < fobj.row * fobj.col; i++)
           tmp.mass[i] += sobj.mass[i];
@@ -44,7 +50,7 @@ namespace slave {
         throw new ArgumentException("Err: " + "obj " + fobj.ID + " and obj "+ sobj.ID + "cannot be summed");
     }
     public static vector operator -(vector fobj, vector sobj){
-      if(fobj.checkSum(sobj) && !fobj.IsNull() && !sobj.IsNull()){
+      if(checkSum(fobj, sobj) && !fobj.IsNull() && !sobj.IsNull()){
         vector tmp = new vector(fobj);
 
         for(int i=0; i < fobj.row * fobj.col; i++)
@@ -65,7 +71,7 @@ namespace slave {
         throw new ArgumentException("Err: " + "obj" + obj.ID + " is empty");
     }
     public static matrix operator *(vector fobj, vector sobj){
-      if(fobj.checkMul(sobj) && !fobj.IsNull() && !sobj.IsNull()){
+      if(checkMul(fobj,sobj) && !fobj.IsNull() && !sobj.IsNull()){
         matrix tmp = new matrix(fobj.row, sobj.col);
         for(uint i=0; i< fobj.row; i++)
           for(uint j=0; j < sobj.col; j++){
@@ -84,15 +90,7 @@ namespace slave {
       row = tmp;
       return this;
     }
-    public vector scal(double item){
-      if(!IsNull()){
-        for(int i=0; i < row; i++)
-          mass[i] *= item;
-          return this;
-      }
-      else 
-        throw new ArgumentException("vector: " + ID + " is empty");
-    }
+    
     public vector norm(){
       if(!IsNull()){
         double md = mod();
@@ -113,7 +111,9 @@ namespace slave {
       else
         throw new ArgumentException("vector: " + ID + " is empty");
     }
-    public vector vecMult(vector fobj, vector sobj){
+    
+    // static
+    public static vector vecMult(vector fobj, vector sobj){
       if(fobj.row > 3 || sobj.row > 3) 
         throw new Exception("vector: out of size");
       else{
@@ -124,24 +124,25 @@ namespace slave {
         return tmp;
       }
     }
-    public double cos(vector obj){
-      return this.scalMult(obj)/(this.mod() * obj.mod());
+    
+    public static double cos(vector fobj, vector sobj){
+      return scalMult(fobj, sobj)/(fobj.mod() * sobj.mod());
     }
-    public double sin(vector obj){
-      return 1- Math.Pow(this.cos(obj),2);
+    public static double sin(vector fobj, vector sobj){
+      return 1- Math.Pow(cos(fobj, sobj),2);
     }
-    public double scalMult(vector obj){
-      if(this.checkSum(obj) && !this.IsNull() && !obj.IsNull()){
+    public static double scalMult(vector fobj , vector sobj){
+      if(checkSum(fobj, sobj) && !fobj.IsNull()){
         double ans = 0;
-        for(int i=0; i < this.row; i++)
-          ans += this.mass[i] * obj.mass[i]; 
+        for(int i=0; i < fobj.row; i++)
+          ans += fobj.mass[i] * sobj.mass[i]; 
         return ans;
       }
       else 
         throw new Exception("Err: Cannot be multiplied");
     }
-    public double angle(vector obj){
-      return Math.Acos(this.scalMult(obj)/(this.mod() * obj.mod())) * 180 / Math.PI;
+    public static double angle(vector fobj, vector sobj){
+      return Math.Acos(scalMult(fobj,sobj)/(fobj.mod() * sobj.mod())) * 180 / Math.PI;
     }
     public double this[uint r]{
       get{
@@ -149,14 +150,14 @@ namespace slave {
           return this.mass[r];
         }
         else 
-          throw new ArgumentException("obj " + ID + ": Out of range");
+          throw new IndexOutOfRangeException("obj " + ID + ": Out of range");
       }
       set{
         if(r < this.row){
           this.mass[r] = value;
         }
         else
-          throw new ArgumentException("obj " + ID + ": Out of range");
+          throw new IndexOutOfRangeException("obj " + ID + ": Out of range");
       }
     }
   }

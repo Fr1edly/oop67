@@ -69,10 +69,16 @@ namespace slave {
             mass[i] = m[i];
         }
       }
+      else{
+        ID = ++_ID;
+          this.row = 0;
+          this.col = 0;
+          mass = null;
+      }
       Console.WriteLine("matrix "+ ID + ": created");
     }
     public matrix(int r, int c, Func<uint, uint, double> F){
-      if(r == 0|| c == 0){
+      if(r == 0 || c == 0){
         ID = ++_ID;
         this.row = 0;
         this.col = 0;
@@ -103,18 +109,19 @@ namespace slave {
     }
     ~matrix(){
         Console.WriteLine("matrix "+ID+": deleted");
-      _ID = _ID-1;
+
     }
     public override string ToString()
       {
         string text ="";
         if(this.row == 0 || this.col == 0){
-        text = " ";
+          text = " ";
               
         }
         else {
           for(int i = 0; i < this.row; i++){
             for(int j = 0; j < this.col; j++){
+              // ???
               text +=string.Format("{0:F2}", mass[i * this.col + j]) +"\t";
                }
             text += "\n";
@@ -123,12 +130,13 @@ namespace slave {
             return text;
         }
 
-      public bool checkSum(matrix obj){
-        return ((row == obj.row)&&(col == obj.col));
+      // static
+      public static bool checkSum(matrix fobj,matrix sobj){
+        return ((fobj.row == sobj.row)&&(fobj.col == sobj.col));
       }
 
-      public bool checkMul(matrix obj){
-        return row == obj.col;
+      public static bool checkMul(matrix fobj, matrix sobj){
+        return fobj.row == sobj.col;
       }
 
       public double max(){
@@ -154,7 +162,8 @@ namespace slave {
         return this.mass == null ? true : false;
       }
       public static matrix operator +(matrix fobj, matrix sobj){
-        if(fobj.checkSum(sobj) && !fobj.IsNull() && !sobj.IsNull()){
+        // !!!
+        if(checkSum(fobj, sobj) && !fobj.IsNull()){
           matrix tmp = new matrix(fobj);
           for(int i=0; i < fobj.row * fobj.col; i++)
             tmp.mass[i] = fobj.mass[i] + sobj.mass[i];
@@ -164,7 +173,7 @@ namespace slave {
           throw new ArgumentException("Err: " + "obj "+ fobj.ID+ " and obj " + sobj.ID + " cannot be summed");
       }
       public static matrix operator-(matrix fobj, matrix sobj){
-        if(fobj.checkSum(sobj) && !fobj.IsNull() && !sobj.IsNull()){
+        if(checkSum(fobj, sobj) && !fobj.IsNull()){
           matrix tmp = new matrix(fobj);
           for(int i=0; i < fobj.row * fobj.col; i++)
             tmp.mass[i] = fobj.mass[i] - sobj.mass[i];
@@ -174,7 +183,7 @@ namespace slave {
           throw new ArgumentException("Err: " + "obj "+ fobj.ID+ " and obj " + sobj.ID + " cannot be deducted");
       }
       public static matrix operator*(matrix fobj, matrix sobj){
-        if(fobj.checkMul(sobj) && !fobj.IsNull() && !sobj.IsNull()){
+        if(checkMul(fobj,sobj) && !fobj.IsNull()){
           matrix tmp = new matrix(fobj.row, sobj.col);
 
           for(int i=0; i< fobj.row * sobj.col; i++)
@@ -204,14 +213,26 @@ namespace slave {
           if(r < this.row && c < this.col)
             return this.mass[r*this.col + c];
           else
-            throw new ArgumentException( "Obj " + ID + ": Out of range");
+            // !!!
+            throw new IndexOutOfRangeException( "Obj " + ID + ": Out of range");
         }
         set{
           if(r < this.row && c < this.col)
             mass[r* this.col + c] = value;
           else
-            throw new ArgumentException("Obj "+ ID + ": Out of range");
+            throw new IndexOutOfRangeException("Obj "+ ID + ": Out of range");
         }
       }
+      public double rows{
+        get{
+          return row;
+        }
+      }
+      public double cols{
+        get{
+          return col;
+        }
+      }
+      // get row, col
     }
   }
